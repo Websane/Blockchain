@@ -6,11 +6,12 @@ interface BlockConstructor {
 }
 
 export class Block {
-	private data;
+	data;
 	previousHash;
 	timestamp;
 	hash;
 	nonce;
+	getData: () => any;
 
 	constructor({ data }: BlockConstructor) {
 		this.previousHash = "";
@@ -18,6 +19,9 @@ export class Block {
 		this.timestamp = new Date().toISOString();
 		this.data = data;
 		this.nonce = 0;
+		this.getData = function() {
+			return this.data;
+		}
 	}
 
 	calculateHash(): string {
@@ -29,9 +33,5 @@ export class Block {
 			this.nonce++;
 			this.hash = this.calculateHash();
 		}
-	}
-
-	getData() {
-		return this.data;
 	}
 }
