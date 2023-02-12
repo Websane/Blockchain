@@ -1,22 +1,21 @@
 import { sha256 } from '../../utils/sha256';
 
 interface BlockConstructor {
-	timestamp: string;
 	data: any;
 	previousHash?: string;
 }
 
 export class Block {
+	private data;
 	previousHash;
 	timestamp;
-	data;
 	hash;
 	nonce;
 
-	constructor({ timestamp, data }: BlockConstructor) {
+	constructor({ data }: BlockConstructor) {
 		this.previousHash = "";
 		this.hash = this.calculateHash(); // как избежать коллизий, какая вероятность что у двух блоков высчитается одинаковый хэш?
-		this.timestamp = timestamp;
+		this.timestamp = new Date().toISOString();
 		this.data = data;
 		this.nonce = 0;
 	}
@@ -30,5 +29,9 @@ export class Block {
 			this.nonce++;
 			this.hash = this.calculateHash();
 		}
+	}
+
+	getData() {
+		return this.data;
 	}
 }

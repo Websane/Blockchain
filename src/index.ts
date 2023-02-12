@@ -5,12 +5,12 @@ const WEBSANE_COIN = new Blockchain();
 
 console.log('mining block 1...');
 WEBSANE_COIN.addBlock(
-  new Block({ timestamp: new Date().toISOString(), data: { name: 'Vitaly' } })
+  new Block({ data: { name: 'Vitaly' } })
 );
 
 console.log('mining block 2...');
 WEBSANE_COIN.addBlock(
-  new Block({ timestamp: new Date().toISOString(), data: { city: 'Gorky' } })
+  new Block({ data: { city: 'Gorky' } })
 );
 
 console.log(WEBSANE_COIN.chain);

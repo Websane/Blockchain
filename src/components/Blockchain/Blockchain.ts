@@ -10,10 +10,7 @@ export class Blockchain {
   }
 
   private createGenesisBlock() {
-    const timestamp = new Date().toISOString();
-
     return new Block({
-      timestamp,
       data: "Genesis block",
       previousHash: "0",
     });
@@ -26,7 +23,7 @@ export class Blockchain {
   addBlock(newBlock: Block) {
     newBlock.previousHash = this.getLatestBlock().hash;
     newBlock.hash = newBlock.calculateHash();
-		newBlock.mine(this.difficulty);
+		newBlock.mine(this.difficulty); // что будет если во время майнинга уже будет добавлен кем-то новый блок и previousHash станет не действительным? Как этого избежать?
     this.chain.push(newBlock);
   }
 
