@@ -57,17 +57,26 @@ export class Blockchain {
 
 		const serialized = JSON.stringify(newBlock);
 
-		fs.writeFile(
+		fs.writeFileSync(
 			`${CHAIN_DATA_DIR}/block_${this.chain?.length || 0}_${newBlock.hash}.json`,
 			serialized,
-			'utf8',
-			(error: any) => {
-				if (error) throw error;
-
-				this.chain.push(newBlock);
-				console.log(`Block ${newBlock.hash} was added!`);
-			}
+			'utf8'
 		);
+		//сравнить количество файлов в директории до и после создания нового. Если на 1 больше, то можно делать пуш.
+		this.chain.push(newBlock);
+		console.log(`Block ${newBlock.hash} was added!`);
+
+		// fs.writeFile(
+		// 	`${CHAIN_DATA_DIR}/block_${this.chain?.length || 0}_${newBlock.hash}.json`,
+		// 	serialized,
+		// 	'utf8',
+		// 	(error: any) => {
+		// 		if (error) throw error;
+
+		// 		this.chain.push(newBlock);
+		// 		console.log(`Block ${newBlock.hash} was added!`);
+		// 	}
+		// );
 	}
 
 	getLatestBlock() {
