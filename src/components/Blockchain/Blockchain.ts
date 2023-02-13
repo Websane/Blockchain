@@ -3,40 +3,40 @@ import fs from 'fs';
 import { Block } from '../Block/Block';
 import { CHAIN_DATA_DIR } from '../../constants';
 
+const FORMAT = 'utf-8';
+
 export class Blockchain {
 	readonly chain: Array<Block>;
 	private difficulty;
 
 	constructor() {
-		this.chain = this.getExistBlocks();
+		this.chain = [];
 		this.difficulty = 5;
+		this.checkExistBlocks();
 	}
 
-	private getExistBlocks() {
+	private checkExistBlocks() {
 		if (!fs.existsSync(CHAIN_DATA_DIR)) {
-			return [this.createGenesisBlock()];
+			this.createGenesisBlock();
 		} else {
-			const existBlocks: Array<Block> = [];
 			const chainBlocks = fs.readdirSync(CHAIN_DATA_DIR);
 
 			if (chainBlocks) {
 				chainBlocks.forEach((block) => {
-					const blockData = fs.readFileSync(`${CHAIN_DATA_DIR}/${block}`, 'utf-8');
-					const deserializedBlockData = JSON.parse(blockData);
+					const blockData = fs.readFileSync(`${CHAIN_DATA_DIR}/${block}`, FORMAT);
+					const deserializedBlock = JSON.parse(blockData);
 
-					const updatedBlock = new Block({ data: deserializedBlockData.data });
+					const updatedBlock = new Block({ data: deserializedBlock._data });
 					Object.setPrototypeOf(updatedBlock, Block.prototype);
 
-					updatedBlock.previousHash = deserializedBlockData.previousHash;
-					updatedBlock.timestamp = deserializedBlockData.timestamp;
-					updatedBlock.hash = deserializedBlockData.hash;
-					updatedBlock.nonce = deserializedBlockData.nonce;
+					updatedBlock.previousHash = deserializedBlock.previousHash;
+					updatedBlock.timestamp = deserializedBlock.timestamp;
+					updatedBlock.hash = deserializedBlock.hash;
+					updatedBlock.nonce = deserializedBlock.nonce;
 
-					existBlocks.push(updatedBlock);
+					this.chain.push(updatedBlock);
 				});
 			}
-
-			return existBlocks;
 		}
 	}
 
@@ -47,7 +47,6 @@ export class Blockchain {
 		});
 
 		this.addFile(genesisBlock);
-		return genesisBlock;
 	}
 
 	private addFile(newBlock: Block) {
@@ -55,28 +54,20 @@ export class Blockchain {
 			fs.mkdirSync(CHAIN_DATA_DIR);
 		}
 
-		const serialized = JSON.stringify(newBlock);
+		const serializedBlock = JSON.stringify(newBlock);
 
-		fs.writeFileSync(
-			`${CHAIN_DATA_DIR}/block_${this.chain?.length || 0}_${newBlock.hash}.json`,
-			serialized,
-			'utf8'
-		);
-		//сравнить количество файлов в директории до и после создания нового. Если на 1 больше, то можно делать пуш.
-		this.chain.push(newBlock);
-		console.log(`Block ${newBlock.hash} was added!`);
+		try {
+			fs.writeFileSync(
+				`${CHAIN_DATA_DIR}/block_${this.chain?.length || 0}_${newBlock.hash}.json`,
+				serializedBlock,
+				FORMAT
+			);
 
-		// fs.writeFile(
-		// 	`${CHAIN_DATA_DIR}/block_${this.chain?.length || 0}_${newBlock.hash}.json`,
-		// 	serialized,
-		// 	'utf8',
-		// 	(error: any) => {
-		// 		if (error) throw error;
-
-		// 		this.chain.push(newBlock);
-		// 		console.log(`Block ${newBlock.hash} was added!`);
-		// 	}
-		// );
+			this.chain.push(newBlock);
+			console.log(`Block ${newBlock.hash} was added!`);
+		} catch {
+			console.error(`Block adding error`);
+		}
 	}
 
 	getLatestBlock() {

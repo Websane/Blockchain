@@ -6,22 +6,22 @@ interface BlockConstructor {
 }
 
 export class Block {
-	private data;
+	_data;
 	previousHash;
 	timestamp;
 	hash;
 	nonce;
 
 	constructor({ data }: BlockConstructor) {
+		this._data = data;
 		this.previousHash = "";
 		this.hash = this.calculateHash(); // как избежать коллизий, какая вероятность что у двух блоков высчитается одинаковый хэш?
 		this.timestamp = new Date().toISOString();
-		this.data = data;
 		this.nonce = 0;
 	}
 
-	getData() {
-		return this.data;
+	get data() {
+		return this._data;
 	}
 
 	calculateHash(): string {
