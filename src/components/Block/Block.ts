@@ -1,19 +1,23 @@
 import { sha256 } from '../../utils/sha256';
+import { Transaction } from '../Transaction/Transaction';
 
 interface BlockConstructor {
-	data: any;
+	data?: any;
 	previousHash?: string;
+	transactions?: Array<Transaction>;
 }
 
 export class Block {
 	_data;
+	_transactions;
 	previousHash;
 	timestamp;
 	hash;
 	nonce;
 
-	constructor({ data }: BlockConstructor) {
+	constructor({ data, transactions }: BlockConstructor) {
 		this._data = data;
+		this._transactions = transactions || [];
 		this.previousHash = "";
 		this.hash = this.calculateHash(); // как избежать коллизий, какая вероятность что у двух блоков высчитается одинаковый хэш?
 		this.timestamp = new Date().toISOString();
@@ -24,14 +28,22 @@ export class Block {
 		return this._data;
 	}
 
+	get transactions() {
+		return this._transactions;
+	}
+
 	calculateHash(): string {
-		return sha256(this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce);
+		return sha256(this.previousHash + this.timestamp + JSON.stringify(this.data) + JSON.stringify(this.transactions) + this.nonce);
 	}
 
 	mine(difficulty: number) {
+		console.log('mining block...');
+
 		while (!this.hash.startsWith(Array(difficulty + 1).join('0'))) {
 			this.nonce++;
 			this.hash = this.calculateHash();
 		}
+
+		console.log('Block mined:', this.hash);
 	}
 }
