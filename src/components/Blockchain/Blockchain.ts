@@ -1,10 +1,11 @@
 import fs from 'fs';
 
 import { Block } from '../Block/Block';
-import { CHAIN_DATA_DIR, PENDING_TRANSACTIONS_DATA_DIR } from '../../constants';
+import { CHAIN_DATA_DIR, INITIAL_COINS_ADDRESS, PENDING_TRANSACTIONS_DATA_DIR } from '../../constants';
 import { Transaction } from '../Transaction/Transaction';
 
 const FORMAT = 'utf-8';
+const PENDING_TRANSACTIONS_DATA = `${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`;
 
 export class Blockchain {
 	readonly chain: Array<Block>;
@@ -31,8 +32,8 @@ export class Blockchain {
 					const blockData = fs.readFileSync(`${CHAIN_DATA_DIR}/${block}`, FORMAT);
 					const deserializedBlock = JSON.parse(blockData);
 					const deserializedTransactions = deserializedBlock._transactions.map(
-						(tz: Transaction) => {
-							return new Transaction(tz);
+						(transaction: Transaction) => {
+							return new Transaction(transaction);
 						}
 					);
 
@@ -52,7 +53,7 @@ export class Blockchain {
 
 			if (fs.existsSync(PENDING_TRANSACTIONS_DATA_DIR)) {
 				const pendingTransactionsData = fs.readFileSync(
-					`${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`,
+					PENDING_TRANSACTIONS_DATA,
 					FORMAT
 				);
 
@@ -107,21 +108,26 @@ export class Blockchain {
 	addBlock(newBlock: Block) {
 		newBlock.previousHash = this.getLatestBlock().hash;
 		newBlock.hash = newBlock.calculateHash();
-		newBlock.mine(this.difficulty); // что будет если во время майнинга уже будет добавлен кем-то новый блок и previousHash станет не действительным? Как этого избежать?
+		newBlock.mine(this.difficulty);
 		this.addFile(newBlock);
 	}
 
-	// minePendingTransactions(rewardAddress: string) {
-	// 	const rewardTransaction = new Transaction({
-	// 		from: 'blockchain',
-	// 		to: rewardAddress,
-	// 		amount: this.#miningReward,
-	// 	});
-	// 	this.pendingTransactions.push(rewardTransaction);
+	minePendingTransactions(rewardAddress: string) {
+		const rewardTransaction = new Transaction({
+			from: null,
+			to: rewardAddress,
+			amount: this.#miningReward,
+		});
+		this.pendingTransactions.push(rewardTransaction);
 
-	// 	this.addBlock(new Block({ transactions: this.pendingTransactions }));
-	// 	this.pendingTransactions = [];
-	// }
+		this.addBlock(new Block({ transactions: this.pendingTransactions }));
+		this.#clearPandingTransactions();
+	}
+
+	#clearPandingTransactions() {
+		this.pendingTransactions = [];
+		this.#addPendingTransactionsFile(this.pendingTransactions);
+	}
 
 	addTransaction(transaction: Transaction) {
 		if (!transaction.from || !transaction.to || !transaction.amount) {
@@ -132,17 +138,17 @@ export class Blockchain {
 			throw new Error('Transaction amount must be higher than 0.');
 		}
 
-		// const balance = this.getBalanceOfAddress(transaction.from);
+		const balance = this.getBalanceOfAddress(transaction.from);
 
-		// if (balance < transaction.amount) {
-		//   throw new Error('Not enough balance.');
-		// }
+		if (balance < transaction.amount) {
+		  throw new Error('Not enough balance.');
+		}
 
 		this.pendingTransactions.push(transaction);
-		this.addPendingTransactionsFile(this.pendingTransactions);
+		this.#addPendingTransactionsFile(this.pendingTransactions);
 	}
 
-	private addPendingTransactionsFile(transactions: Array<Transaction>) {
+	#addPendingTransactionsFile(transactions: Array<Transaction>) {
 		if (!fs.existsSync(PENDING_TRANSACTIONS_DATA_DIR)) {
 			fs.mkdirSync(PENDING_TRANSACTIONS_DATA_DIR);
 		}
@@ -151,7 +157,7 @@ export class Blockchain {
 
 		try {
 			fs.writeFileSync(
-				`${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`,
+				PENDING_TRANSACTIONS_DATA,
 				serializedPendingTransactions,
 				FORMAT
 			);
@@ -161,7 +167,7 @@ export class Blockchain {
 	}
 
 	getBalanceOfAddress(address: string) {
-		let balance = 0;
+		let balance = INITIAL_COINS_ADDRESS.get(address) || 0;
 
 		for (const block of this.chain) {
 			for (const transaction of block.transactions) {
@@ -176,17 +182,6 @@ export class Blockchain {
 		}
 
 		return balance;
-	}
-
-	getTransactionById(transactionId: Transaction['_id']) {
-		for (const block of this.chain) {
-			for (const transaction of block.transactions) {
-				if (transaction.id === transactionId) {
-					return transaction;
-				}
-			}
-		}
-		return null;
 	}
 
 	isChainValid() {

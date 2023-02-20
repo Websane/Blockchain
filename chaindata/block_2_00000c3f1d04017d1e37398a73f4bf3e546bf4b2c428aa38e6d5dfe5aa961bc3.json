@@ -1,0 +1,10 @@
+{
+	"_transactions": [
+		{ "from": "1", "to": "2", "amount": 150, "signature": null },
+		{ "from": null, "to": "3", "amount": 100, "signature": null }
+	],
+	"previousHash": "00000406482003e104607d882195e2595c28f2bf2ddec30f44e5e410055ea9d4",
+	"hash": "00000c3f1d04017d1e37398a73f4bf3e546bf4b2c428aa38e6d5dfe5aa961bc3",
+	"timestamp": "2023-02-20T08:07:52.053Z",
+	"nonce": 324582
+}
