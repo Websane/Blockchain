@@ -22,8 +22,8 @@ export class Transaction {
 	constructor({ from, to, amount, asset }: TransactionCounstructor) {
 		this.from = from;
 		this.to = to;
-		this.amount = amount;
-		this.asset = asset;
+		this.amount = amount || 0;
+		this.asset = asset || null;
 		this.signature = null;
 	}
 

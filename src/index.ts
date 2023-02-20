@@ -8,26 +8,26 @@ const WEBSANE_COIN = new Blockchain();
 // WEBSANE_COIN.addBlock(new Block({ data: { name: 'Vitaly' } }));
 // WEBSANE_COIN.addBlock(new Block({ data: { city: 'Gorky' } }));
 
-WEBSANE_COIN.minePendingTransactions('3');
+// WEBSANE_COIN.minePendingTransactions('3');
 
 // const myWallet = new Wallet();
 // myWallet.sendTransaction({ toAddress: 'lal', amount: 50, blockchain: WEBSANE_COIN }, true);
 
-// WEBSANE_COIN.addTransaction(
-// 	new Transaction({
-// 		from: '1',
-// 		to: '2',
-// 		amount: 150,
-// 	})
-// );
+WEBSANE_COIN.addTransaction(
+	new Transaction({
+		from: '1',
+		to: '2',
+		amount: 150,
+	})
+);
 
-// WEBSANE_COIN.addTransaction(
-// 	new Transaction({
-// 		from: '1',
-// 		to: '2',
-// 		asset:  WEBSANE_COIN.getAssetOfAddress('1'),
-// 	})
-// );
+WEBSANE_COIN.addTransaction(
+	new Transaction({
+		from: '1',
+		to: '2',
+		asset:  WEBSANE_COIN.getAssetOfAddress('1'),
+	})
+);
 
 // console.log(WEBSANE_COIN.chain);
 

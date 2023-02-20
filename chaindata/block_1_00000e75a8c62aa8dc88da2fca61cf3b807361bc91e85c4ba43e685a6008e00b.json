@@ -1,0 +1,17 @@
+{
+	"_transactions": [
+		{ "from": "1", "to": "2", "amount": 150, "asset": null, "signature": null },
+		{
+			"from": "1",
+			"to": "2",
+			"amount": 0,
+			"asset": { "data": "Я владею этими данными, это лично мои объект" },
+			"signature": null
+		},
+		{ "from": null, "to": "3", "amount": 100, "asset": null, "signature": null }
+	],
+	"previousHash": "63b239c86ca41383915f2ce5ade998d6a72095bcb5dd69e88ded75d78613a664",
+	"hash": "00000e75a8c62aa8dc88da2fca61cf3b807361bc91e85c4ba43e685a6008e00b",
+	"timestamp": "2023-02-20T09:56:03.129Z",
+	"nonce": 361147
+}
