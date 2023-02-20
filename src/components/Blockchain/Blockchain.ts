@@ -1,7 +1,12 @@
 import fs from 'fs';
 
 import { Block } from '../Block/Block';
-import { CHAIN_DATA_DIR, INITIAL_COINS_ADDRESS, PENDING_TRANSACTIONS_DATA_DIR } from '../../constants';
+import {
+	CHAIN_DATA_DIR,
+	INITIAL_COINS_ADDRESS,
+	INITIAL_DATA_ADDRESS,
+	PENDING_TRANSACTIONS_DATA_DIR,
+} from '../../constants';
 import { Transaction } from '../Transaction/Transaction';
 
 const FORMAT = 'utf-8';
@@ -58,11 +63,11 @@ export class Blockchain {
 				);
 
 				if (pendingTransactionsData) {
-					const deserializedPendingTransactions = JSON.parse(pendingTransactionsData)?.map(
-						(tz: Transaction) => {
-							return new Transaction(tz);
-						}
-					);
+					const deserializedPendingTransactions = JSON.parse(
+						pendingTransactionsData
+					)?.map((tz: Transaction) => {
+						return new Transaction(tz);
+					});
 
 					this.pendingTransactions = deserializedPendingTransactions;
 				}
@@ -130,8 +135,34 @@ export class Blockchain {
 	}
 
 	addTransaction(transaction: Transaction) {
+		if (
+			!transaction.from ||
+			!transaction.to ||
+			(!transaction.amount && !transaction.asset)
+		) {
+			throw new Error(`Transaction must include from, to and asset or amount`);
+		}
+
+		if (transaction.amount && !transaction.asset) {
+			this.#checkCoinsTransaction(transaction);
+		}
+
+		if (!transaction.amount && transaction.asset) {
+			this.#checkAssetTransaction(transaction);
+		}
+
+		if (transaction.amount && transaction.asset) {
+			this.#checkCoinsTransaction(transaction);
+			this.#checkAssetTransaction(transaction);
+		}
+
+		this.pendingTransactions.push(transaction);
+		this.#addPendingTransactionsFile(this.pendingTransactions);
+	}
+
+	#checkCoinsTransaction(transaction: Transaction) {
 		if (!transaction.from || !transaction.to || !transaction.amount) {
-			throw new Error('Transaction must include from, to and amount.');
+			throw new Error(`Transaction must include from, to and amount`);
 		}
 
 		if (transaction.amount <= 0) {
@@ -141,11 +172,20 @@ export class Blockchain {
 		const balance = this.getBalanceOfAddress(transaction.from);
 
 		if (balance < transaction.amount) {
-		  throw new Error('Not enough balance.');
+			throw new Error('Not enough balance.');
+		}
+	}
+
+	#checkAssetTransaction(transaction: Transaction) {
+		if (!transaction.from || !transaction.to || !transaction.asset) {
+			throw new Error(`Transaction must include from, to and asset`);
 		}
 
-		this.pendingTransactions.push(transaction);
-		this.#addPendingTransactionsFile(this.pendingTransactions);
+		const assetFromAddess = this.getAssetOfAddress(transaction.from);
+
+		if (!assetFromAddess) {
+			throw new Error(`${transaction.from} has no asset`);
+		}
 	}
 
 	#addPendingTransactionsFile(transactions: Array<Transaction>) {
@@ -156,11 +196,7 @@ export class Blockchain {
 		const serializedPendingTransactions = JSON.stringify(transactions);
 
 		try {
-			fs.writeFileSync(
-				PENDING_TRANSACTIONS_DATA,
-				serializedPendingTransactions,
-				FORMAT
-			);
+			fs.writeFileSync(PENDING_TRANSACTIONS_DATA, serializedPendingTransactions, FORMAT);
 		} catch {
 			console.error(`Writing pending transactions error`);
 		}
@@ -171,17 +207,35 @@ export class Blockchain {
 
 		for (const block of this.chain) {
 			for (const transaction of block.transactions) {
-				if (transaction.from === address) {
+				if (transaction.from === address && transaction.amount) {
 					balance -= transaction.amount;
 				}
 
-				if (transaction.to === address) {
+				if (transaction.to === address && transaction.amount) {
 					balance += transaction.amount;
 				}
 			}
 		}
 
 		return balance;
+	}
+
+	getAssetOfAddress(address: string) {
+		let asset = INITIAL_DATA_ADDRESS.get(address) || null;
+
+		for (const block of this.chain) {
+			for (const transaction of block.transactions) {
+				if (transaction.from === address && transaction.asset) {
+					asset = null;
+				}
+
+				if (transaction.to === address && transaction.asset) {
+					asset = transaction.asset;
+				}
+			}
+		}
+
+		return asset;
 	}
 
 	isChainValid() {

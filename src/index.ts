@@ -8,7 +8,7 @@ const WEBSANE_COIN = new Blockchain();
 // WEBSANE_COIN.addBlock(new Block({ data: { name: 'Vitaly' } }));
 // WEBSANE_COIN.addBlock(new Block({ data: { city: 'Gorky' } }));
 
-// WEBSANE_COIN.minePendingTransactions('3');
+WEBSANE_COIN.minePendingTransactions('3');
 
 // const myWallet = new Wallet();
 // myWallet.sendTransaction({ toAddress: 'lal', amount: 50, blockchain: WEBSANE_COIN }, true);
@@ -21,6 +21,14 @@ const WEBSANE_COIN = new Blockchain();
 // 	})
 // );
 
+// WEBSANE_COIN.addTransaction(
+// 	new Transaction({
+// 		from: '1',
+// 		to: '2',
+// 		asset:  WEBSANE_COIN.getAssetOfAddress('1'),
+// 	})
+// );
+
 // console.log(WEBSANE_COIN.chain);
 
 // console.log(WEBSANE_COIN.pendingTransactions);
@@ -28,5 +36,9 @@ const WEBSANE_COIN = new Blockchain();
 console.log(1, WEBSANE_COIN.getBalanceOfAddress('1'));
 console.log(2, WEBSANE_COIN.getBalanceOfAddress('2'));
 console.log(3, WEBSANE_COIN.getBalanceOfAddress('3'));
+
+console.log('asset', 1, WEBSANE_COIN.getAssetOfAddress('1'));
+console.log('asset', 2, WEBSANE_COIN.getAssetOfAddress('2'));
+console.log('asset', 3, WEBSANE_COIN.getAssetOfAddress('3'));
 
 console.log('WEBSANE_COIN is valid?', WEBSANE_COIN.isChainValid());

@@ -8,24 +8,27 @@ const ec = new EC('secp256k1');
 type TransactionCounstructor = {
 	from: string | null;
 	to: string;
-	amount: number;
+	amount?: number;
+	asset?: any; // что угодно
 }
 
 export class Transaction {
 	from;
 	to;
 	amount;
-	signature: any;
+	asset;
+	signature: string | null;
 
-	constructor({ from, to, amount }: TransactionCounstructor) {
+	constructor({ from, to, amount, asset }: TransactionCounstructor) {
 		this.from = from;
 		this.to = to;
 		this.amount = amount;
+		this.asset = asset;
 		this.signature = null;
 	}
 
 	calculateHash() {
-    return sha256(this.from + this.to + this.amount).toString();
+    return sha256(this.from + this.to + this.amount + this.asset).toString();
   }
 
 	signTransaction(signingKey: any) {

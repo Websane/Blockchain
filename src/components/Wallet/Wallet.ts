@@ -23,7 +23,7 @@ export class Wallet {
 		this.privateKey = this.keyPair.getPrivate('hex');
 	}
 
-	sendTransaction({ amount, toAddress, blockchain }: WalletTransaction, isFirst?: boolean) {
+	sendTransaction({ amount, toAddress, blockchain }: WalletTransaction) {
 		const transaction = new Transaction({ from: this.publicKey, to: toAddress, amount });
 		transaction.signTransaction(this.keyPair);
 		blockchain.addTransaction(transaction);
