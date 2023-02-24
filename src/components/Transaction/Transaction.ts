@@ -7,7 +7,7 @@ const ec = new EC('secp256k1');
 
 type TransactionCounstructor = {
 	from: string | null;
-	to: string;
+	to: string | null;
 	amount?: number;
 	asset?: any; // что угодно
 }
@@ -28,7 +28,7 @@ export class Transaction {
 	}
 
 	calculateHash() {
-    return sha256(this.from + this.to + this.amount + this.asset).toString();
+    return sha256(String(this.from) + String(this.to) + this.amount + this.asset).toString();
   }
 
 	signTransaction(signingKey: any) {

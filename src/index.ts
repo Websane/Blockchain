@@ -1,5 +1,6 @@
 import { Block } from './components/Block/Block';
 import { Blockchain } from './components/Blockchain/Blockchain';
+import { SmartContract } from './components/SmartContract/SmartContract';
 import { Transaction } from './components/Transaction/Transaction';
 import { Wallet } from './components/Wallet/Wallet';
 
@@ -11,23 +12,23 @@ const WEBSANE_COIN = new Blockchain();
 // WEBSANE_COIN.minePendingTransactions('3');
 
 // const myWallet = new Wallet();
-// myWallet.sendTransaction({ toAddress: 'lal', amount: 50, blockchain: WEBSANE_COIN }, true);
+// myWallet.sendTransaction({ toAddress: 'lal', amount: 50, blockchain: WEBSANE_COIN });
 
-WEBSANE_COIN.addTransaction(
-	new Transaction({
-		from: '1',
-		to: '2',
-		amount: 150,
-	})
-);
+// WEBSANE_COIN.addTransaction(
+// 	new Transaction({
+// 		from: '1',
+// 		to: '2',
+// 		amount: 150,
+// 	})
+// );
 
-WEBSANE_COIN.addTransaction(
-	new Transaction({
-		from: '1',
-		to: '2',
-		asset:  WEBSANE_COIN.getAssetOfAddress('1'),
-	})
-);
+// WEBSANE_COIN.addTransaction(
+// 	new Transaction({
+// 		from: '1',
+// 		to: '2',
+// 		asset:  WEBSANE_COIN.getAssetOfAddress('1'),
+// 	})
+// );
 
 // console.log(WEBSANE_COIN.chain);
 
@@ -42,3 +43,20 @@ console.log('asset', 2, WEBSANE_COIN.getAssetOfAddress('2'));
 console.log('asset', 3, WEBSANE_COIN.getAssetOfAddress('3'));
 
 console.log('WEBSANE_COIN is valid?', WEBSANE_COIN.isChainValid());
+
+// const contract = new SmartContract('code123', {
+// 	myFunction: (a: number, b: number) => {
+// 		const sum = a + b;
+// 		console.log(`The sum of ${a} and ${b} is ${sum}`);
+// 		return sum;
+// 	},
+// });
+// WEBSANE_COIN.addContract(contract);
+
+// WEBSANE_COIN.executeContract(
+// 	{ contractAddress: contract.address, functionName: 'myFunction' },
+// 	2,
+// 	3
+// );
+
+// console.log('contracts', WEBSANE_COIN.contracts);
