@@ -17,14 +17,14 @@ const CONTRACTS_DATA = `${CONTRACTS_DATA_DIR}/contracts.json`;
 
 export class Blockchain {
 	readonly chain: Array<Block>;
-	readonly contracts: Array<SmartContract>;
+	// readonly contracts: Array<SmartContract>;
 	private difficulty;
 	pendingTransactions: Array<Transaction>;
 	#miningReward;
 
 	constructor() {
 		this.chain = [];
-		this.contracts = [];
+		// this.contracts = [];
 		this.difficulty = 5;
 		this.#miningReward = 100;
 		this.pendingTransactions = [];
@@ -207,19 +207,19 @@ export class Blockchain {
 		}
 	}
 
-	#addContractsToFile(contracts: Array<SmartContract>) {
-		if (!fs.existsSync(CONTRACTS_DATA_DIR)) {
-			fs.mkdirSync(CONTRACTS_DATA_DIR);
-		}
+	// #addContractsToFile(contracts: Array<SmartContract>) {
+	// 	if (!fs.existsSync(CONTRACTS_DATA_DIR)) {
+	// 		fs.mkdirSync(CONTRACTS_DATA_DIR);
+	// 	}
 
-		const serializedContracts = JSON.stringify(contracts);
+	// 	const serializedContracts = JSON.stringify(contracts);
 
-		try {
-			fs.writeFileSync(CONTRACTS_DATA, serializedContracts, FORMAT);
-		} catch {
-			console.error(`Writing contracts error`);
-		}
-	}
+	// 	try {
+	// 		fs.writeFileSync(CONTRACTS_DATA, serializedContracts, FORMAT);
+	// 	} catch {
+	// 		console.error(`Writing contracts error`);
+	// 	}
+	// }
 
 	getBalanceOfAddress(address: string) {
 		let balance = INITIAL_COINS_ADDRESS.get(address) || 0;
@@ -257,61 +257,61 @@ export class Blockchain {
 		return asset;
 	}
 
-	addContract(contract: SmartContract) {
-		if (!(contract instanceof SmartContract)) {
-			throw new Error('Only instances of SmartContract can be added to the blockchain');
-		}
+	// addContract(contract: SmartContract) {
+	// 	if (!(contract instanceof SmartContract)) {
+	// 		throw new Error('Only instances of SmartContract can be added to the blockchain');
+	// 	}
 
-		this.contracts.push(contract);
-		this.#addContractsToFile(this.contracts);
+	// 	this.contracts.push(contract);
+	// 	this.#addContractsToFile(this.contracts);
 
-		const transaction = new Transaction({
-			from: null,
-			to: null,
-			asset: contract.code,
-		});
-		this.pendingTransactions.push(transaction);
+	// 	const transaction = new Transaction({
+	// 		from: null,
+	// 		to: null,
+	// 		asset: contract.code,
+	// 	});
+	// 	this.pendingTransactions.push(transaction);
 
-		console.log(`Smart contract with code "${contract.code}" added to the blockchain`);
-	}
+	// 	console.log(`Smart contract with code "${contract.code}" added to the blockchain`);
+	// }
 
-	executeContract(
-		{ contractAddress, functionName }: Record<'contractAddress' | 'functionName', string>,
-		...args: any[]
-	) {
-		const contract = this.contracts.find(
-			(contract) => contract.address === contractAddress
-		);
+	// executeContract(
+	// 	{ contractAddress, functionName }: Record<'contractAddress' | 'functionName', string>,
+	// 	...args: any[]
+	// ) {
+	// 	const contract = this.contracts.find(
+	// 		(contract) => contract.address === contractAddress
+	// 	);
 
-		if (!contract) {
-			throw new Error(
-				`Contract with address ${contractAddress} not found in the blockchain`
-			);
-		}
+	// 	if (!contract) {
+	// 		throw new Error(
+	// 			`Contract with address ${contractAddress} not found in the blockchain`
+	// 		);
+	// 	}
 
-		const func = contract.functions[functionName];
+	// 	const func = contract.functions[functionName];
 
-		if (!func) {
-			throw new Error(
-				`Function "${functionName}" not found in contract with address ${contractAddress}`
-			);
-		}
+	// 	if (!func) {
+	// 		throw new Error(
+	// 			`Function "${functionName}" not found in contract with address ${contractAddress}`
+	// 		);
+	// 	}
 
-		const result = func.call(...args);
+	// 	const result = func.call(...args);
 
-		const transaction = new Transaction({
-			from: null,
-			to: contractAddress,
-			asset: JSON.stringify(result),
-		});
-		this.pendingTransactions.push(transaction);
+	// 	const transaction = new Transaction({
+	// 		from: null,
+	// 		to: contractAddress,
+	// 		asset: JSON.stringify(result),
+	// 	});
+	// 	this.pendingTransactions.push(transaction);
 
-		console.log(
-			`Function "${functionName}" of contract with address ${contractAddress} executed, result: ${JSON.stringify(
-				result
-			)}`
-		);
-	}
+	// 	console.log(
+	// 		`Function "${functionName}" of contract with address ${contractAddress} executed, result: ${JSON.stringify(
+	// 			result
+	// 		)}`
+	// 	);
+	// }
 
 	isChainValid() {
 		for (let i = 1; i < this.chain.length; i++) {

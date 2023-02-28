@@ -19,7 +19,7 @@ export class Block {
 		this._data = data;
 		this._transactions = transactions || [];
 		this.previousHash = "";
-		this.hash = this.calculateHash(); // как избежать коллизий, какая вероятность что у двух блоков высчитается одинаковый хэш?
+		this.hash = this.calculateHash();
 		this.timestamp = new Date().toISOString();
 		this.nonce = 0;
 	}
