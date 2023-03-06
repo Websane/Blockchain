@@ -31,16 +31,6 @@ export class Transaction {
     return sha256(String(this.from) + String(this.to) + this.amount + this.asset).toString();
   }
 
-	signTransaction(signingKey: any) {
-    if (signingKey.getPublic('hex') !== this.from) {
-      throw new Error("You cannot sign transactions for other wallets!");
-    }
-
-    const hashTx = this.calculateHash();
-    const sig = signingKey.sign(hashTx, 'base64');
-    this.signature = sig.toDER('hex');
-  }
-
 	isValid() {
     if (this.from === null) return true;
 
@@ -50,5 +40,15 @@ export class Transaction {
 
     const publicKey = ec.keyFromPublic(this.from, 'hex');
     return publicKey.verify(this.calculateHash(), this.signature);
+  }
+
+	signTransaction(signingKey: any) {
+    if (signingKey.getPublic('hex') !== this.from) {
+      throw new Error("You cannot sign transactions for other wallets!");
+    }
+
+    const hashTx = this.calculateHash();
+    const sig = signingKey.sign(hashTx, 'base64');
+    this.signature = sig.toDER('hex');
   }
 }
