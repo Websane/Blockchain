@@ -1,6 +1,5 @@
 import { Block } from './components/Block/Block';
 import { Blockchain } from './components/Blockchain/Blockchain';
-import { SmartContract } from './components/SmartContract/SmartContract';
 import { Transaction } from './components/Transaction/Transaction';
 import { Wallet } from './components/Wallet/Wallet';
 
@@ -121,11 +120,3 @@ runGenerator();
 
 // const myWallet = new Wallet();
 // myWallet.sendTransaction({ toAddress: 'lal', amount: 50, blockchain: WEBSANE_COIN });
-
-// const contract = new SmartContract('code123', {
-// 	myFunction: (a: number, b: number) => {
-// 		const sum = a + b;
-// 		console.log(`The sum of ${a} and ${b} is ${sum}`);
-// 		return sum;
-// 	},
-// });

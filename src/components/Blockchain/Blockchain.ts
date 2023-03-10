@@ -9,11 +9,13 @@ import {
 	INITIAL_COINS_ADDRESS,
 	INITIAL_DATA_ADDRESS,
 	PENDING_TRANSACTIONS_DATA_DIR,
+	CONTRACT_ADDRESSES_DATA_DIR,
 } from '../../constants';
 import { sha256 } from '../../utils/sha256';
 
 const FORMAT = 'utf-8';
 const PENDING_TRANSACTIONS_DATA = `${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`;
+const CONTRACT_ADDRESSES_DATA = `${CONTRACT_ADDRESSES_DATA_DIR}/contractAddresses.json`;
 
 export class Blockchain {
 	readonly chain: Array<Block>;
@@ -43,6 +45,13 @@ export class Blockchain {
 					const deserializedBlock = JSON.parse(blockData);
 					const deserializedTransactions = deserializedBlock._transactions.map(
 						(transaction: TransactionCounstructor) => {
+							if (transaction.contract) {
+								transaction.contract = new SmartContract({
+									code: transaction.contract.code,
+									address: transaction.contract._address,
+									owner: transaction.contract._owner,
+								});
+							}
 							return new Transaction(transaction);
 						}
 					);
@@ -75,6 +84,16 @@ export class Blockchain {
 					});
 
 					this.pendingTransactions = deserializedPendingTransactions;
+				}
+			}
+
+			if (fs.existsSync(CONTRACT_ADDRESSES_DATA_DIR)) {
+				const contractsData = fs.readFileSync(CONTRACT_ADDRESSES_DATA, FORMAT);
+
+				if (contractsData) {
+					const deserializedContractAddresses = JSON.parse(contractsData);
+
+					this.contractAddresses = deserializedContractAddresses;
 				}
 			}
 		}
@@ -133,8 +152,9 @@ export class Blockchain {
 		this.pendingTransactions.forEach((transaction) => {
 			if (transaction.contract) {
 				this.contractAddresses.push(transaction.contract.address);
+				this.#addContractAddressesFile(this.contractAddresses);
 			}
-		})
+		});
 
 		this.addBlock(new Block({ transactions: this.pendingTransactions }));
 		this.#clearPandingTransactions();
@@ -217,6 +237,20 @@ export class Blockchain {
 		}
 	}
 
+	#addContractAddressesFile(contractAddresses: Array<string>) {
+		if (!fs.existsSync(CONTRACT_ADDRESSES_DATA_DIR)) {
+			fs.mkdirSync(CONTRACT_ADDRESSES_DATA_DIR);
+		}
+
+		const serializedContractData = JSON.stringify(contractAddresses);
+
+		try {
+			fs.writeFileSync(CONTRACT_ADDRESSES_DATA, serializedContractData, FORMAT);
+		} catch {
+			console.error(`Writing contract addresses error`);
+		}
+	}
+
 	getBalanceOfAddress(address: string) {
 		let balance = INITIAL_COINS_ADDRESS.get(address) || 0;
 
@@ -280,7 +314,7 @@ export class Blockchain {
 		const contract = new SmartContract({
 			code: contractCode,
 			address: contractAddress,
-			owner
+			owner,
 		});
 
 		const contractTransaction = new Transaction({
@@ -294,7 +328,10 @@ export class Blockchain {
 	}
 
 	getContract(address: string) {
-		const contractAddress = this.contractAddresses.find((existingAddress) => existingAddress === address);
+		const contractAddress = this.contractAddresses.find(
+			(existingAddress) => existingAddress === address
+		);
+
 		if (!contractAddress) {
 			console.error(`Contract ${address} not found`);
 			return null;
