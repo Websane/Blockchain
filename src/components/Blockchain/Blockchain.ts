@@ -1,15 +1,16 @@
 import fs from 'fs';
 
 import { Block } from '../Block/Block';
+import { Transaction, TransactionCounstructor } from '../Transaction/Transaction';
+import { SmartContract } from '../SmartContract/SmartContract';
+
 import {
 	CHAIN_DATA_DIR,
 	INITIAL_COINS_ADDRESS,
 	INITIAL_DATA_ADDRESS,
 	PENDING_TRANSACTIONS_DATA_DIR,
 } from '../../constants';
-import { Transaction, TransactionCounstructor } from '../Transaction/Transaction';
 import { sha256 } from '../../utils/sha256';
-import { SmartContract } from '../SmartContract/SmartContract';
 
 const FORMAT = 'utf-8';
 const PENDING_TRANSACTIONS_DATA = `${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`;
@@ -18,6 +19,7 @@ export class Blockchain {
 	readonly chain: Array<Block>;
 	private difficulty;
 	pendingTransactions: Array<Transaction>;
+	contractAddresses: Array<string>;
 	#miningReward;
 
 	constructor() {
@@ -25,6 +27,7 @@ export class Blockchain {
 		this.difficulty = 5;
 		this.#miningReward = 100;
 		this.pendingTransactions = [];
+		this.contractAddresses = [];
 		this.initChainFromFiles();
 	}
 
@@ -127,6 +130,12 @@ export class Blockchain {
 		});
 		this.pendingTransactions.push(rewardTransaction);
 
+		this.pendingTransactions.forEach((transaction) => {
+			if (transaction.contract) {
+				this.contractAddresses.push(transaction.contract.address);
+			}
+		})
+
 		this.addBlock(new Block({ transactions: this.pendingTransactions }));
 		this.#clearPandingTransactions();
 	}
@@ -137,6 +146,10 @@ export class Blockchain {
 	}
 
 	addTransaction(transaction: Transaction) {
+		if (transaction.contract) {
+			throw new Error(`You must use method "depoloyContract"`);
+		}
+
 		if (
 			!transaction.from ||
 			!transaction.to ||
@@ -258,9 +271,16 @@ export class Blockchain {
 
 	deployContract(contractCode: string, owner: string) {
 		const contractAddress = sha256(contractCode).toString();
+		const isAddressExist = Boolean(this.getContract(contractAddress));
+
+		if (isAddressExist) {
+			throw new Error(`Contract ${contractAddress} has already existed`);
+		}
+
 		const contract = new SmartContract({
 			code: contractCode,
 			address: contractAddress,
+			owner
 		});
 
 		const contractTransaction = new Transaction({
@@ -270,6 +290,22 @@ export class Blockchain {
 		});
 		this.pendingTransactions.push(contractTransaction);
 
-		return contractAddress;
+		console.log(`Contract ${contractAddress} was created`);
+	}
+
+	getContract(address: string) {
+		const contractAddress = this.contractAddresses.find((existingAddress) => existingAddress === address);
+		if (!contractAddress) {
+			console.error(`Contract ${address} not found`);
+			return null;
+		}
+
+		for (const block of this.chain) {
+			for (const transaction of block.transactions) {
+				if (transaction.contract?.address === address) {
+					return transaction.contract;
+				}
+			}
+		}
 	}
 }

@@ -20,6 +20,16 @@ const getBlockchainInfo = () => {
 	console.log('Данные адреса 2', WEBSANE_COIN.getAssetOfAddress('2'));
 	console.log('Данные адреса 3', WEBSANE_COIN.getAssetOfAddress('3'));
 
+	const contractAddresses = WEBSANE_COIN.contractAddresses;
+	console.log('Контракты', contractAddresses);
+
+	if (contractAddresses.length > 0) {
+		contractAddresses.forEach(address => {
+			const contract = WEBSANE_COIN.getContract(address);
+			console.table(contract)
+		})
+	}
+
 	console.log('Блокчейн WEBSANE_COIN валиден?', WEBSANE_COIN.isChainValid());
 
 	console.log('Блокчейн', WEBSANE_COIN.chain);
@@ -53,11 +63,17 @@ function* generateExample() {
 	};
 	yield {
 		id: 3,
+		descr: 'Деплой контракта аккаунтом 2',
+		execute: () =>
+			WEBSANE_COIN.deployContract('something interesting', '2'),
+	};
+	yield {
+		id: 4,
 		descr: 'Майнинг блока аккаунтом 3',
 		execute: () => WEBSANE_COIN.minePendingTransactions('3'),
 	};
 	return {
-		id: 4,
+		id: 5,
 		descr: 'Логирование',
 		execute: () => 'Все шаги выполнены',
 	};
