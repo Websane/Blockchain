@@ -346,3 +346,21 @@ export class Blockchain {
 		}
 	}
 }
+
+// callContractMethod(contractAddress: string, methodName: string, ...args: any[]): any {
+//   // Получаем контракт по его адресу
+//   const contract = this.getContract(contractAddress);
+
+//   // Проверяем, что контракт найден
+//   if (!contract) {
+//     throw new Error(`Contract ${contractAddress} not found`);
+//   }
+
+//   // Проверяем, что контракт имеет метод с указанным именем
+//   if (!(methodName in contract)) {
+//     throw new Error(`Method ${methodName} not found in contract`);
+//   }
+
+//   // Вызываем метод контракта с переданными параметрами
+//   return contract[methodName](...args);
+// }
