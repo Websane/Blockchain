@@ -3,17 +3,16 @@ import fs from 'fs';
 import { Block } from '../Block/Block';
 import {
 	CHAIN_DATA_DIR,
-	CONTRACTS_DATA_DIR,
 	INITIAL_COINS_ADDRESS,
 	INITIAL_DATA_ADDRESS,
 	PENDING_TRANSACTIONS_DATA_DIR,
 } from '../../constants';
-import { Transaction } from '../Transaction/Transaction';
+import { Transaction, TransactionCounstructor } from '../Transaction/Transaction';
 import { sha256 } from '../../utils/sha256';
+import { SmartContract } from '../SmartContract/SmartContract';
 
 const FORMAT = 'utf-8';
 const PENDING_TRANSACTIONS_DATA = `${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`;
-const CONTRACTS_DATA = `${CONTRACTS_DATA_DIR}/contracts.json`;
 
 export class Blockchain {
 	readonly chain: Array<Block>;
@@ -40,7 +39,7 @@ export class Blockchain {
 					const blockData = fs.readFileSync(`${CHAIN_DATA_DIR}/${block}`, FORMAT);
 					const deserializedBlock = JSON.parse(blockData);
 					const deserializedTransactions = deserializedBlock._transactions.map(
-						(transaction: Transaction) => {
+						(transaction: TransactionCounstructor) => {
 							return new Transaction(transaction);
 						}
 					);
@@ -68,7 +67,7 @@ export class Blockchain {
 				if (pendingTransactionsData) {
 					const deserializedPendingTransactions = JSON.parse(
 						pendingTransactionsData
-					)?.map((tz: Transaction) => {
+					)?.map((tz: TransactionCounstructor) => {
 						return new Transaction(tz);
 					});
 
@@ -259,16 +258,18 @@ export class Blockchain {
 
 	deployContract(contractCode: string, owner: string) {
 		const contractAddress = sha256(contractCode).toString();
-		const contract = {
+		const contract = new SmartContract({
 			code: contractCode,
 			address: contractAddress,
-		};
+		});
 
 		const contractTransaction = new Transaction({
 			from: owner,
 			to: contractAddress,
-			asset: contract,
+			contract: contract,
 		});
 		this.pendingTransactions.push(contractTransaction);
+
+		return contractAddress;
 	}
 }

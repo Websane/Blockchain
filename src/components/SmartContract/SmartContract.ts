@@ -1,15 +1,16 @@
-export class SmartContract {
+type SmartContractConstructor = {
 	code: string;
-	_address: string;
-	functions: Record<string, any>;
-	value: any;
+	address: string;
+}
 
-  constructor(code: SmartContract['code'], functions: SmartContract['functions']) {
-    this.code = code;
-		this._address = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    this.functions = functions;
+export class SmartContract {
+	code;
+	_address;
 
-  }
+	constructor({ code, address }: SmartContractConstructor) {
+		this.code = code;
+		this._address = address;
+	}
 
 	get address() {
 		return this._address;

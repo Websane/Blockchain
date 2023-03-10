@@ -1,15 +1,17 @@
 import { sha256 } from '../../utils/sha256';
 
 import elliptic from 'elliptic';
+import { SmartContract } from '../SmartContract/SmartContract';
 
 const EC = elliptic.ec;
 const ec = new EC('secp256k1');
 
-type TransactionCounstructor = {
+export type TransactionCounstructor = {
 	from: string | null;
 	to: string | null;
 	amount?: number;
 	asset?: any; // что угодно
+	contract?: SmartContract;
 }
 
 export class Transaction {
@@ -17,18 +19,20 @@ export class Transaction {
 	to;
 	amount;
 	asset;
+	contract;
 	signature: string | null;
 
-	constructor({ from, to, amount, asset }: TransactionCounstructor) {
+	constructor({ from, to, amount, asset, contract }: TransactionCounstructor) {
 		this.from = from;
 		this.to = to;
 		this.amount = amount || 0;
 		this.asset = asset || null;
+		this.contract = contract || null;
 		this.signature = null;
 	}
 
 	calculateHash() {
-    return sha256(String(this.from) + String(this.to) + this.amount + this.asset).toString();
+    return sha256(String(this.from) + String(this.to) + this.amount + this.asset + this.contract).toString();
   }
 
 	isValid() {

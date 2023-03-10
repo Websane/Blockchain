@@ -113,12 +113,3 @@ runGenerator();
 // 		return sum;
 // 	},
 // });
-// WEBSANE_COIN.addContract(contract);
-
-// WEBSANE_COIN.executeContract(
-// 	{ contractAddress: contract.address, functionName: 'myFunction' },
-// 	2,
-// 	3
-// );
-
-// console.log('contracts', WEBSANE_COIN.contracts);
