@@ -17,6 +17,12 @@ const FORMAT = 'utf-8';
 const PENDING_TRANSACTIONS_DATA = `${PENDING_TRANSACTIONS_DATA_DIR}/pendingTransactions.json`;
 const CONTRACT_ADDRESSES_DATA = `${CONTRACT_ADDRESSES_DATA_DIR}/contractAddresses.json`;
 
+type CallContract = {
+	contractAddress: string;
+	methodName: string;
+	initiator: string;
+};
+
 export class Blockchain {
 	readonly chain: Array<Block>;
 	private difficulty;
@@ -345,22 +351,36 @@ export class Blockchain {
 			}
 		}
 	}
+
+	callContractMethod(
+		{ contractAddress, methodName, initiator }: CallContract,
+		...args: any[]
+	) {
+		const contract = this.getContract(contractAddress);
+
+		if (!contract) {
+			throw new Error(`Contract ${contractAddress} not found`);
+		}
+
+		if (!(contract.getMethods().includes(methodName))) {
+			throw new Error(`Method ${methodName} not found in contract`);
+		}
+		const contractCode = new (eval(`(${contract.code})`))();
+
+		// @ts-ignore
+		const result = contractCode[methodName](...args);
+
+		if (result) {
+			const contractWorkTransaction = new Transaction({
+				from: initiator,
+				to: contractAddress,
+				contractWork: {
+					method: methodName,
+					args,
+					result,
+				},
+			});
+			this.pendingTransactions.push(contractWorkTransaction);
+		}
+	}
 }
-
-// callContractMethod(contractAddress: string, methodName: string, ...args: any[]): any {
-//   // Получаем контракт по его адресу
-//   const contract = this.getContract(contractAddress);
-
-//   // Проверяем, что контракт найден
-//   if (!contract) {
-//     throw new Error(`Contract ${contractAddress} not found`);
-//   }
-
-//   // Проверяем, что контракт имеет метод с указанным именем
-//   if (!(methodName in contract)) {
-//     throw new Error(`Method ${methodName} not found in contract`);
-//   }
-
-//   // Вызываем метод контракта с переданными параметрами
-//   return contract[methodName](...args);
-// }

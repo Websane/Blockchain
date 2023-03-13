@@ -2,7 +2,7 @@ type SmartContractConstructor = {
 	code: string;
 	address: string;
 	owner: string;
-}
+};
 
 export class SmartContract {
 	code;
@@ -21,5 +21,17 @@ export class SmartContract {
 
 	get owner() {
 		return this._owner;
+	}
+
+	getMethods() {
+		const classPrototype = Object.getPrototypeOf(new (eval(`(${this.code})`))());
+
+		const methodNames = Reflect.ownKeys(classPrototype).filter(
+			(propertyName) =>
+				typeof classPrototype[propertyName] === 'function' &&
+				propertyName !== 'constructor'
+		);
+
+		return methodNames;
 	}
 }
