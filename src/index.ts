@@ -93,14 +93,14 @@ function* generateExample() {
 	yield {
 		id: 7,
 		descr: 'Вызов метода контракта аккаунтом 2 (проверка существующих в контракте тасок)',
-		execute: () =>
-			WEBSANE_COIN.callContractMethod(
-				{
-					contractAddress: WEBSANE_COIN.contractAddresses[0],
-					methodName: 'getTasks',
-					initiator: '2',
-				}
-			),
+		execute: () => {
+			const result = WEBSANE_COIN.callContractMethod({
+				contractAddress: WEBSANE_COIN.contractAddresses[0],
+				methodName: 'getTasks',
+				initiator: '2',
+			});
+			console.log('Существующие в контракте задания:', result);
+		},
 	};
 	yield {
 		id: 8,
