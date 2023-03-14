@@ -390,5 +390,7 @@ export class Blockchain {
 			});
 			this.pendingTransactions.push(contractWorkTransaction);
 		}
+
+		return result;
 	}
 }
