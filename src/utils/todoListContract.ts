@@ -2,8 +2,8 @@ export type Task = string;
 
 export class TodoListContract {
 	tasks: Array<Task>;
-	constructor() {
-		this.tasks = [];
+	constructor(tasks: Array<Task>) {
+		this.tasks = tasks || [];
 	}
 
 	addTask(task: Task) {

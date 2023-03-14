@@ -326,7 +326,7 @@ export class Blockchain {
 		const contractTransaction = new Transaction({
 			from: owner,
 			to: contractAddress,
-			contract: contract,
+			contract,
 		});
 		this.pendingTransactions.push(contractTransaction);
 
@@ -365,10 +365,18 @@ export class Blockchain {
 		if (!(contract.getMethods().includes(methodName))) {
 			throw new Error(`Method ${methodName} not found in contract`);
 		}
-		const contractCode = new (eval(`(${contract.code})`))();
+		const currentContract = new (eval(`(${contract.code})`))();
 
-		// @ts-ignore
-		const result = contractCode[methodName](...args);
+		for (const block of this.chain) {
+			for (const transaction of block.transactions) {
+				if (transaction.to === contractAddress && transaction.contractWork) {
+					const {method: contractWorkMethod, args: contractWorkArgs} = transaction.contractWork;
+					currentContract[contractWorkMethod](...contractWorkArgs);
+				}
+			}
+		}
+
+		const result = currentContract[methodName](...args);
 
 		if (result) {
 			const contractWorkTransaction = new Transaction({

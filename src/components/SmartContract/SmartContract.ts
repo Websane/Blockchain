@@ -24,7 +24,8 @@ export class SmartContract {
 	}
 
 	getMethods() {
-		const classPrototype = Object.getPrototypeOf(new (eval(`(${this.code})`))());
+		const contract = new (eval(`(${this.code})`))();
+		const classPrototype = Object.getPrototypeOf(contract);
 
 		const methodNames = Reflect.ownKeys(classPrototype).filter(
 			(propertyName) =>

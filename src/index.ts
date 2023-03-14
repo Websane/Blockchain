@@ -12,13 +12,13 @@ const rl = createInterface({ input, output });
 const WEBSANE_COIN = new Blockchain();
 
 const getBlockchainInfo = () => {
-	// console.log('Баланс адреса 1', WEBSANE_COIN.getBalanceOfAddress('1'));
-	// console.log('Баланс адреса 2', WEBSANE_COIN.getBalanceOfAddress('2'));
-	// console.log('Баланс адреса 3', WEBSANE_COIN.getBalanceOfAddress('3'));
+	console.log('Баланс адреса 1', WEBSANE_COIN.getBalanceOfAddress('1'));
+	console.log('Баланс адреса 2', WEBSANE_COIN.getBalanceOfAddress('2'));
+	console.log('Баланс адреса 3', WEBSANE_COIN.getBalanceOfAddress('3'));
 
-	// console.log('Данные адреса 1', WEBSANE_COIN.getAssetOfAddress('1'));
-	// console.log('Данные адреса 2', WEBSANE_COIN.getAssetOfAddress('2'));
-	// console.log('Данные адреса 3', WEBSANE_COIN.getAssetOfAddress('3'));
+	console.log('Данные адреса 1', WEBSANE_COIN.getAssetOfAddress('1'));
+	console.log('Данные адреса 2', WEBSANE_COIN.getAssetOfAddress('2'));
+	console.log('Данные адреса 3', WEBSANE_COIN.getAssetOfAddress('3'));
 
 	const contractAddresses = WEBSANE_COIN.contractAddresses;
 	console.log('Контракты', contractAddresses);
