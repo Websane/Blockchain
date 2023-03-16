@@ -21,12 +21,13 @@ const getBlockchainInfo = () => {
 	console.log('Данные адреса 3', WEBSANE_COIN.getAssetOfAddress('3'));
 
 	const contractAddresses = WEBSANE_COIN.contractAddresses;
-	console.log('Контракты', contractAddresses);
+	console.log('Загруженные контракты:', contractAddresses);
 
 	if (contractAddresses.length > 0) {
 		contractAddresses.forEach((address) => {
 			const contract = WEBSANE_COIN.getContract(address);
-			console.log('Контракт:', contract);
+			console.log(`Контракт ${address}:`, contract);
+			console.log(`Методы контракта ${address}:`);
 			console.table(contract?.getMethods());
 		});
 	}
@@ -132,11 +133,11 @@ function runGenerator() {
 		}
 
 		rl.question(
-			`Будет выполнен шаг ${value.id} - ${value.descr}. Выполнить? (y/n) `,
+			`\x1b[35mБудет выполнен шаг ${value.id} - ${value.descr}. Выполнить? (y/n)\x1b[0m `,
 			(answer) => {
 				if (answer.toLowerCase() === 'y') {
 					value.execute();
-					console.log(`Шаг ${value.id} выполнен.`);
+					console.log(`\x1b[32mШаг ${value.id} выполнен.\x1b[0m`);
 					getBlockchainInfo();
 					ask();
 				} else {
